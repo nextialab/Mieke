@@ -1,6 +1,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <vector>
+#include <random>
 #include "agent.hpp"
 
 static void error_callback(int error, const char* description) {
@@ -13,7 +14,17 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     }
 }
 
-std::vector<Agent> agents(10);
+std::vector<Agent> agents;
+std::default_random_engine generator;
+std::uniform_real_distribution<double> distribution(0.0, 1.0);
+
+void setupAgents() {
+    agents.push_back(Agent(0.8f, 0.8f, 0.0f));
+    agents.push_back(Agent(0.6f, 0.6f, 0.0f));
+    agents.push_back(Agent(0.4f, 0.4f, 0.0f));
+    agents.push_back(Agent(0.2f, 0.2f, 0.0f));
+    agents.push_back(Agent(0.0f, 0.0f, 0.0f));
+}
 
 int main() {
     GLFWwindow* window;
@@ -28,15 +39,17 @@ int main() {
     }
     glfwMakeContextCurrent(window);
     glfwSetKeyCallback(window, key_callback);
+    setupAgents();
     while (!glfwWindowShouldClose(window)) {
         glClear(GL_COLOR_BUFFER_BIT);
+        // update elements
+        for (auto it = agents.begin(); it != agents.end(); ++it) {
+            it->update(distribution(generator), distribution(generator));
+        }
         // Draw elements
-        glBegin(GL_TRIANGLES);
-        glColor3f(0.1, 0.2, 0.3);
-        glVertex3f(0, 0, 0); // x, y, z
-        glVertex3f(1, 0, 0);
-        glVertex3f(0, 1, 0);
-        glEnd();
+        for (auto it = agents.begin(); it != agents.end(); ++it) {
+            it->draw();
+        }
         // End Draw
         glfwSwapBuffers(window);
         glfwPollEvents();
