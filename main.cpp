@@ -2,6 +2,8 @@
 #include <iostream>
 #include <vector>
 #include <random>
+#include <cmath>
+#include <chrono>
 #include "agent.hpp"
 
 static void error_callback(int error, const char* description) {
@@ -15,18 +17,38 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 }
 
 std::vector<Agent> agents;
-std::default_random_engine generator;
-std::uniform_real_distribution<double> distribution(0.0, 1.0);
+std::default_random_engine generator(std::chrono::system_clock::now().time_since_epoch().count());
+std::uniform_real_distribution<float> distribution(0.0, 1.0);
+
+void generateAgent(int id) {
+    float x, y;
+    bool again = true;
+    while (again) {
+        again = false;
+        x = -0.8f + 1.6f * distribution(generator);
+        y = -0.8f + 1.6f * distribution(generator);
+        for (int i = 0; i < agents.size(); i++) {
+            if (pow(agents[i].x - x, 2.0f) + pow(agents[i].y - y, 2.0f) < 0.04f) {
+                again = true;
+                break;
+            }
+        }
+    }
+    float angle = -180.0f + 360.f * distribution(generator);
+    std::cout << id << " " << x << " " << y << " " << angle << std::endl;
+    agents.push_back(Agent(id, x, y, angle));
+}
 
 void setupAgents() {
-    agents.push_back(Agent(0.8f, 0.8f, 0.0f));
-    agents.push_back(Agent(0.6f, 0.6f, 0.0f));
-    agents.push_back(Agent(0.4f, 0.4f, 0.0f));
-    agents.push_back(Agent(0.2f, 0.2f, 0.0f));
-    agents.push_back(Agent(0.0f, 0.0f, 0.0f));
+    for (int i = 0; i < 5; i++) {
+        generateAgent(i);
+    }
 }
 
 int main() {
+    // setup agents
+    setupAgents();
+    // setup window
     GLFWwindow* window;
     glfwSetErrorCallback(error_callback);
     if (!glfwInit()) {
@@ -39,12 +61,11 @@ int main() {
     }
     glfwMakeContextCurrent(window);
     glfwSetKeyCallback(window, key_callback);
-    setupAgents();
     while (!glfwWindowShouldClose(window)) {
         glClear(GL_COLOR_BUFFER_BIT);
         // update elements
         for (auto it = agents.begin(); it != agents.end(); ++it) {
-            it->update(distribution(generator), distribution(generator));
+            it->update();
         }
         // Draw elements
         for (auto it = agents.begin(); it != agents.end(); ++it) {

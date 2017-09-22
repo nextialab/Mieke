@@ -6,13 +6,15 @@
 #define RAD 0.01745329
 
 Agent::Agent() {
+    id = 0;
     x = 0.0;
     y = 0.0;
     angle = 0.0;
     side = 0.1;
 }
 
-Agent::Agent(float x, float y, float angle) {
+Agent::Agent(int id, float x, float y, float angle) {
+    this->id = id;
     this->x = x;
     this->y = y;
     this->angle = angle;
@@ -23,25 +25,18 @@ Agent::~Agent() {
 
 }
 
-void Agent::update(double rand0, double rand1) {
-    if (rand0 > 0.5) {
-        // move forward
-        x += 0.01 * cos(angle * RAD);
-        y += 0.01 * sin(angle * RAD);
-    } else {
-        // turn
-        if (rand1 > 0.5) {
-            angle += 5.0;
-            if (angle > 180.0) {
-                angle -= 360.0;
-            }
-        } else {
-            angle -= 5.0;
-            if (angle < -180.0) {
-                angle += 360.0;
-            }
-        }
-    }   
+void Agent::update() {
+    float dx = 0.01 * cos(angle * RAD);
+    float dy = 0.01 * sin(angle * RAD);
+    if ((x > 0.9f && dx > 0.0f) || (x < -0.9f && dx < 0.0f)) {
+        dx = -1.0f * dx;
+    }
+    if ((y > 0.9f && dy > 0.0f) || (y < -0.9f && dy < 0.0f)) {
+        dy = -1.0f * dy;
+    }
+    x += dx;
+    y += dy;
+    angle = atan2(dy, dx) / RAD;
 }
 
 void Agent::draw() {
