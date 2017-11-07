@@ -4,6 +4,7 @@
 #include <random>
 #include <cmath>
 #include <chrono>
+#include <thread>
 #include "agent.hpp"
 
 static void error_callback(int error, const char* description) {
@@ -19,6 +20,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 std::vector<Agent> agents;
 std::default_random_engine generator(std::chrono::system_clock::now().time_since_epoch().count());
 std::uniform_real_distribution<float> distribution(0.0, 1.0);
+std::chrono::milliseconds cycle{50}; // 20 FPS
 
 void generateAgent(int id) {
     float x, y;
@@ -62,8 +64,9 @@ int main() {
     glfwMakeContextCurrent(window);
     glfwSetKeyCallback(window, key_callback);
     while (!glfwWindowShouldClose(window)) {
+        auto start = std::chrono::high_resolution_clock::now();
         glClear(GL_COLOR_BUFFER_BIT);
-        // update elements
+        // Update elements
         for (auto it = agents.begin(); it != agents.end(); ++it) {
             it->update();
         }
@@ -74,6 +77,10 @@ int main() {
         // End Draw
         glfwSwapBuffers(window);
         glfwPollEvents();
+        // Sleep
+        auto end = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+        std::this_thread::sleep_for(cycle - duration);
     }
     glfwDestroyWindow(window);
     glfwTerminate();
