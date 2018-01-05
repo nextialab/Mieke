@@ -7,6 +7,9 @@
 #include <thread>
 #include "agent.hpp"
 
+const int width = 640;
+const int height = 640;
+
 static void error_callback(int error, const char* description) {
     std::cerr << error << " " << description;
 }
@@ -56,15 +59,22 @@ int main() {
     if (!glfwInit()) {
         exit(EXIT_FAILURE);
     }
-    window = glfwCreateWindow(640, 480, "mieke", NULL, NULL);
+    window = glfwCreateWindow(width, height, "mieke", NULL, NULL);
     if (!window) {
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
     glfwMakeContextCurrent(window);
     glfwSetKeyCallback(window, key_callback);
+    //gluOrtho2D(-2.0, 2.0, -2.0, 2.0);
     while (!glfwWindowShouldClose(window)) {
         auto start = std::chrono::high_resolution_clock::now();
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+        glOrtho(-5.0, 5.0, -5.0, 5.0, 0.0, 1.0);
+        // here we should compute the matrix in function of the viewport dimensions
+        // glTranslatef(0.0f, 0.0f, -2.0f);
+        // glScalef(0.5f, 0.5f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         // Update elements
         for (auto it = agents.begin(); it != agents.end(); ++it) {

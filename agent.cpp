@@ -47,7 +47,7 @@ void Agent::draw() {
     float x2 = x + side * cos((angle - 135.0) * RAD);
     float y2 = y + side * sin((angle - 135.0) * RAD);
     glBegin(GL_TRIANGLES);
-    glColor3f(0.1, 0.2, 0.3);
+    glColor3f(1.0f, 1.0f, 1.0f);
     glVertex3f(x0, y0, 0); // x, y, z
     glVertex3f(x1, y1, 0);
     glVertex3f(x2, y2, 0);
