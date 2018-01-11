@@ -1,18 +1,23 @@
 #ifndef AGENT_HPP
 #define AGENT_HPP
 
+#include <vector>
+
 class Agent {
 public:
     Agent();
-    Agent(int id, float x, float y, float angle);
+    Agent(float side, float x, float y);
     ~Agent();
-    int id;
+    void setState(int state);
+    int getState();
+    void update(std::vector<int> sensor);
+    void draw();
+private:
     float x;
     float y;
-    float angle;
     float side;
-    void update();
-    void draw();
+    int state;
+    int next_state;
 };
 
 #endif

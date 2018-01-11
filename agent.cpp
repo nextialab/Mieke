@@ -5,51 +5,58 @@
 
 #define RAD 0.01745329
 
-Agent::Agent() {
-    id = 0;
-    x = 0.0;
-    y = 0.0;
-    angle = 0.0;
-    side = 0.1;
-}
-
-Agent::Agent(int id, float x, float y, float angle) {
-    this->id = id;
+Agent::Agent(float side, float x, float y) {
+    this->side = side;
     this->x = x;
     this->y = y;
-    this->angle = angle;
-    side = 0.02;
+}
+
+Agent::Agent() {
+
 }
 
 Agent::~Agent() {
 
 }
 
-void Agent::update() {
-    float dx = 0.01 * cos(angle * RAD);
-    float dy = 0.01 * sin(angle * RAD);
-    if ((x > 0.9f && dx > 0.0f) || (x < -0.9f && dx < 0.0f)) {
-        dx = -1.0f * dx;
+void Agent::setState(int state) {
+    this->state = state;
+    this->next_state = state;
+}
+
+int Agent::getState() {
+    return state;
+}
+
+void Agent::update(std::vector<int> sensor) {
+    int neighbors = 0;
+    for (auto neighbor = sensor.begin(); neighbor != sensor.end(); ++neighbor) {
+        if (*neighbor == 1) {
+            neighbors++;
+        }
     }
-    if ((y > 0.9f && dy > 0.0f) || (y < -0.9f && dy < 0.0f)) {
-        dy = -1.0f * dy;
+    if (state == 1) {
+        if (neighbors < 2 || neighbors > 3) {
+            next_state = 0;
+        }
+    } else {
+        if (neighbors == 3) {
+            next_state = 1;
+        }
     }
-    x += dx;
-    y += dy;
-    angle = atan2(dy, dx) / RAD;
 }
 
 void Agent::draw() {
-    float x0 = x + side * cos(angle * RAD);
-    float y0 = y + side * sin(angle * RAD);
-    float x1 = x + side * cos((angle + 135.0) * RAD);
-    float y1 = y + side * sin((angle + 135.0) * RAD);
-    float x2 = x + side * cos((angle - 135.0) * RAD);
-    float y2 = y + side * sin((angle - 135.0) * RAD);
-    glBegin(GL_TRIANGLES);
-    glColor3f(1.0f, 1.0f, 1.0f);
-    glVertex3f(x0, y0, 0); // x, y, z
-    glVertex3f(x1, y1, 0);
-    glVertex3f(x2, y2, 0);
+    state = next_state;
+    glBegin(GL_QUADS);
+    if (state == 1) {
+        glColor3f(1.0f, 1.0f, 1.0f); // white
+    } else {
+        glColor3f(0.0f, 0.0f, 0.0f); // black
+    }
+    glVertex3f(x, y, 0); // x, y, z
+    glVertex3f(x + side, y, 0);
+    glVertex3f(x + side, y + side, 0);
+    glVertex3f(x, y + side, 0);
     glEnd();
 }
